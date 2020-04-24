@@ -1,0 +1,23 @@
+{% extends "chatroom_user/base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Create Room</h3>
+    <div class="box">
+        {% if create_error %}
+        <p style="color:red">Room already existed</p>
+        {% endif %}
+        <form method="POST" action="{% url 'createroom' %}">
+            {% csrf_token %}
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="room_name" name="room_name" placeholder="Room name" autofocus="">
+                </div>
+            </div>
+
+            <button class="button is-block is-info is-large is-fullwidth">Create</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

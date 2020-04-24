@@ -1,0 +1,57 @@
+{% extends "chatroom_user/base.html" %}
+
+{% block content %}
+<div>
+    <h3 class="title">Chatrooms</h3>
+    <div class="box">
+        <form method="POST" action="#">
+            {% csrf_token %}
+
+            <div class="field is-grouped">
+                <p class="control is-expanded">
+                  <input class="input" type="text" id="room-name-input" placeholder="Enter room name">
+                </p>
+                <p class="control">
+                  <a class="button is-info" id="room-name-submit">
+                    Join
+                  </a>
+                </p>
+              </div>
+
+        </form>
+
+        <button class="button is-primary" id="room-create">Create room</button>
+
+        <h3 >Room List</h3>
+
+        <div class="content">
+            <ol type="1">
+                {% for room in rooms %}
+                    <li><a class="button is-primary" href="/chat/room/{{ room.room_name }}">{{ room.room_name }}</a>
+                        <a class="button is-danger is-light" href="/chat/leave/{{ room.room_name }}">leave</a>
+                    </li>
+                {% endfor %}
+            </ol>
+        </div>
+
+        <script>
+            document.querySelector('#room-name-input').focus();
+            document.querySelector('#room-name-input').onkeyup = function(e) {
+                if (e.keyCode === 13) {  // enter, return
+                    document.querySelector('#room-name-submit').click();
+                }
+            };
+
+            document.querySelector('#room-name-submit').onclick = function(e) {
+                var roomName = document.querySelector('#room-name-input').value;
+                window.location.pathname = '/chat/room/' + roomName + '/';
+            };
+
+            document.querySelector('#room-create').onclick = function(e) {
+                var roomName = document.querySelector('#room-name-input').value;
+                window.location.pathname = '/chat/create';
+            };
+        </script>
+    </div>
+</div>
+{% endblock %}
