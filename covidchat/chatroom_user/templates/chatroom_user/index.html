@@ -1,0 +1,14 @@
+{% extends "chatroom_user/base.html" %}
+
+{% block content %}
+<h1 class="title">
+  COVID CHATROOM
+</h1>
+<h2 class="subtitle">
+  {% if user.is_authenticated %}
+  Hello {{ user.username }}
+  {% else %}
+  Welcome to our chatroom
+  {% endif %}
+</h2>
+{% endblock %}
