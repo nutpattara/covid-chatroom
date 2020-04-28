@@ -10,41 +10,60 @@
         <input id="chat-message-submit" type="button" value="Send">
         {{ room_name|json_script:"room-name" }}
         <script>
-            const roomName = JSON.parse(document.getElementById('room-name').textContent);
-    
-            const chatSocket = new WebSocket(
-                'ws://'
-                + window.location.host
-                + '/ws/chat/'
-                + roomName
-                + '/'
-            );
-    
-            chatSocket.onmessage = function(e) {
-                const data = JSON.parse(e.data);
-                document.querySelector('#chat-log').value += (data.stamp + " " + data.username + " : " + data.message + '\n');
-            };
-    
-            chatSocket.onclose = function(e) {
-                console.error('Chat socket closed unexpectedly');
-            };
-    
-            document.querySelector('#chat-message-input').focus();
-            document.querySelector('#chat-message-input').onkeyup = function(e) {
-                if (e.keyCode === 13) {  // enter, return
-                    document.querySelector('#chat-message-submit').click();
-                }
-            };
-    
-            document.querySelector('#chat-message-submit').onclick = function(e) {
-                const messageInputDom = document.querySelector('#chat-message-input');
-                const message = messageInputDom.value;
-                chatSocket.send(JSON.stringify({
-                    'username' : "{{ user.username }}",
-                    'message': message
-                }));
-                messageInputDom.value = '';
-            };
+            function connect(port, reconnect_f) {
+                const roomName = JSON.parse(document.getElementById('room-name').textContent);
+                var counter = 0;
+
+                if (reconnect_f == true) counter = 10;
+        
+                var chatSocket = new WebSocket(
+                    'ws://localhost:'
+                    + port
+                    + '/ws/chat/'
+                    + roomName
+                    + '/'
+                );
+        
+                chatSocket.onmessage = function(e) {
+                    if (counter == 0){
+                        const data = JSON.parse(e.data);
+                        document.querySelector('#chat-log').value += (data.stamp + " " + data.username + " : " + data.message + '\n');
+                    } else {
+                        counter -= 1
+                    }
+                };
+        
+                chatSocket.onclose = function(e) {
+                    console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+                    if (port === '8000'){
+                        port = '8001'
+                    } else {
+                        port = '8000'
+                    }
+                    setTimeout(function() {
+                    connect(port, true);
+                    }, 1000);
+                };
+        
+                document.querySelector('#chat-message-input').focus();
+                document.querySelector('#chat-message-input').onkeyup = function(e) {
+                    if (e.keyCode === 13) {  // enter, return
+                        document.querySelector('#chat-message-submit').click();
+                    }
+                };
+        
+                document.querySelector('#chat-message-submit').onclick = function(e) {
+                    const messageInputDom = document.querySelector('#chat-message-input');
+                    const message = messageInputDom.value;
+                    chatSocket.send(JSON.stringify({
+                        'username' : "{{ user.username }}",
+                        'message': message
+                    }));
+                    messageInputDom.value = '';
+                };
+            }
+
+            connect('8000', false);
         </script>
         {% else %}
         You havn't login or room doesn't exists.

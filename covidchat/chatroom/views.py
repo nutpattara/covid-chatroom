@@ -27,7 +27,7 @@ def createroom(request):
         profile.joined_room.add(room)
         data = {
             'room_name': room_name,
-            'is_exists:': True
+            'is_exists:': True,
         }
         return redirect('chat')
     return render(request, 'chatroom/create.html', data)
@@ -35,7 +35,7 @@ def createroom(request):
 def room(request, room_name):
     data = {
         'room_name': room_name,
-        'is_exists:': False
+        'is_exists:': False,
     }
     room = Room.objects.filter(room_name=room_name)
     if room.exists():
